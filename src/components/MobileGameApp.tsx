@@ -178,6 +178,7 @@ export const MobileGameApp: React.FC<MobileGameAppProps> = ({
       source.connect(analyser);
 
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      let lastReportedMicLevel = -1;
       const updateMeter = () => {
         analyser.getByteFrequencyData(dataArray);
         let sum = 0;
@@ -185,7 +186,10 @@ export const MobileGameApp: React.FC<MobileGameAppProps> = ({
           sum += dataArray[i];
         }
         const normalized = Math.min(100, Math.round((sum / dataArray.length / 110) * 100));
-        setLocalMicLevel(normalized);
+        if (Math.abs(normalized - lastReportedMicLevel) >= 3) {
+          lastReportedMicLevel = normalized;
+          setLocalMicLevel(normalized);
+        }
         micRafRef.current = requestAnimationFrame(updateMeter);
       };
       updateMeter();
@@ -276,7 +280,7 @@ export const MobileGameApp: React.FC<MobileGameAppProps> = ({
         <MobileArenaScene />
 
         {/* Mobile Top HUD Bar */}
-        <header className="fixed top-0 left-0 right-0 z-20 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 bg-slate-950/85 border-b border-cyan-500/30 backdrop-blur-md">
+        <header className="fixed top-0 left-0 right-0 z-20 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 bg-slate-950/95 border-b border-cyan-500/30">
           <div className="flex items-center justify-between gap-2 text-xs font-mono">
             <div className="flex items-center gap-1.5">
               <span className="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-400/50 text-cyan-200 font-bold">
@@ -359,7 +363,7 @@ export const MobileGameApp: React.FC<MobileGameAppProps> = ({
 
         {/* Floating Touch Card Inspector & Quick-Cast Bar (when a Hand card is tapped) */}
         {selectedCard && selectedCard.owner === localSeat && (
-          <div className="fixed left-3 right-3 bottom-24 z-30 p-3 rounded-2xl bg-slate-900/95 border border-cyan-400/60 shadow-2xl backdrop-blur-md">
+          <div className="fixed left-3 right-3 bottom-24 z-30 p-3 rounded-2xl bg-slate-900/95 border border-cyan-400/60 shadow-2xl">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
@@ -455,7 +459,7 @@ export const MobileGameApp: React.FC<MobileGameAppProps> = ({
         )}
 
         {/* Bottom Thumb-Friendly Action Dock */}
-        <footer className="fixed bottom-0 left-0 right-0 z-20 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-slate-950/90 border-t border-slate-800 backdrop-blur-md space-y-1.5">
+        <footer className="fixed bottom-0 left-0 right-0 z-20 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-slate-950/95 border-t border-slate-800 space-y-1.5">
           <div className="text-[11px] font-mono text-slate-300 truncate text-center">
             {winner
               ? `VICTORY: ${players[winner].displayName} WINS!`

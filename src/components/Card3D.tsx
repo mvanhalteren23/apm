@@ -76,15 +76,12 @@ export const Card3D: React.FC<Card3DProps> = ({
   const groupRef = useRef<THREE.Group>(null);
   const playedFlightDoneRef = useRef<number | null>(null);
 
-  const hoveredObjectId = useGameStore((s) => s.hoveredObjectId);
-  const selectedCardId = useGameStore((s) => s.selectedCardId);
-  const selectedBlockerId = useGameStore((s) => s.selectedBlockerId);
+  const isHovered = useGameStore((s) => s.hoveredObjectId === card.id);
+  const isSelected = useGameStore(
+    (s) => s.selectedCardId === card.id || s.selectedBlockerId === card.id
+  );
   const setHoveredObjectId = useGameStore((s) => s.setHoveredObjectId);
   const interactWithCard = useGameStore((s) => s.interactWithCard);
-
-  const isHovered = hoveredObjectId === card.id;
-  const isSelected =
-    selectedCardId === card.id || selectedBlockerId === card.id;
 
   const backTexture = useMemo(() => {
     if (typeof document === 'undefined' || !faceDown) return null;
@@ -229,7 +226,7 @@ export const Card3D: React.FC<Card3DProps> = ({
       }}
       onPointerOut={(e) => {
         e.stopPropagation();
-        if (hoveredObjectId === card.id) {
+        if (useGameStore.getState().hoveredObjectId === card.id) {
           setHoveredObjectId(null);
         }
       }}

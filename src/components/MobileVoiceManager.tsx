@@ -28,7 +28,9 @@ export const MobileVoiceManager: React.FC = () => {
   const isPlayroomConnected = useGameStore((s) => s.isPlayroomConnected);
   const localMicStream = useGameStore((s) => s.localMicStream);
   const botVoiceEvent = useGameStore((s) => s.botVoiceEvent);
-  const hoveredObjectId = useGameStore((s) => s.hoveredObjectId);
+  const opponentSeat: PlayerSeat = localSeat === 'P1' ? 'P2' : 'P1';
+  const avatarHoverId = `avatar-${opponentSeat}`;
+  const isHovered = useGameStore((s) => s.hoveredObjectId === avatarHoverId);
 
   const setLocalMicStream = useGameStore((s) => s.setLocalMicStream);
   const setRemoteVoiceLevel = useGameStore((s) => s.setRemoteVoiceLevel);
@@ -38,7 +40,6 @@ export const MobileVoiceManager: React.FC = () => {
   const interactWithPlayerAvatar = useGameStore((s) => s.interactWithPlayerAvatar);
   const setHoveredObjectId = useGameStore((s) => s.setHoveredObjectId);
 
-  const opponentSeat: PlayerSeat = localSeat === 'P1' ? 'P2' : 'P1';
   const opponentState = useGameStore((s) => s.players[opponentSeat]);
   const isOpponentBot = opponentState.isBot || gameMode === 'SOLO_AI';
 
@@ -57,6 +58,7 @@ export const MobileVoiceManager: React.FC = () => {
   const remoteAnalyserRef = useRef<AnalyserNode | null>(null);
   const frequencyDataRef = useRef<Uint8Array | null>(null);
   const synthSpeechEndTimeRef = useRef<number>(0);
+  const lastReportedVoiceLevelRef = useRef<number>(0);
 
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
@@ -535,7 +537,14 @@ export const MobileVoiceManager: React.FC = () => {
       normalizedVoiceEnergy = Math.max(normalizedVoiceEnergy, proceduralPulse);
     }
 
-    setRemoteVoiceLevel(normalizedVoiceEnergy);
+    const quantizedEnergy = Math.round(normalizedVoiceEnergy * 20) / 20;
+    if (
+      Math.abs(quantizedEnergy - lastReportedVoiceLevelRef.current) >= 0.05 ||
+      (quantizedEnergy === 0 && lastReportedVoiceLevelRef.current !== 0)
+    ) {
+      lastReportedVoiceLevelRef.current = quantizedEnergy;
+      setRemoteVoiceLevel(quantizedEnergy);
+    }
 
     if (avatarGroupRef.current) {
       avatarGroupRef.current.position.y =
@@ -563,9 +572,6 @@ export const MobileVoiceManager: React.FC = () => {
     }
   });
 
-  const avatarHoverId = `avatar-${opponentSeat}`;
-  const isHovered = hoveredObjectId === avatarHoverId;
-
   return (
     <group
       ref={avatarGroupRef}
@@ -589,7 +595,7 @@ export const MobileVoiceManager: React.FC = () => {
         }}
         onPointerOut={(e) => {
           e.stopPropagation();
-          if (hoveredObjectId === avatarHoverId) {
+          if (useGameStore.getState().hoveredObjectId === avatarHoverId) {
             setHoveredObjectId(null);
           }
         }}

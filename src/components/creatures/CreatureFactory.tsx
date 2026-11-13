@@ -332,7 +332,6 @@ export const CreatureFactory: React.FC<CreatureFactoryProps> = ({
   const portalRingRef = useRef<THREE.Mesh>(null);
   const interactWithCard = useGameStore((s) => s.interactWithCard);
   const setHoveredObjectId = useGameStore((s) => s.setHoveredObjectId);
-  const hoveredObjectId = useGameStore((s) => s.hoveredObjectId);
 
   const facingRotY = card.owner === 'P1' ? 0 : Math.PI;
 
@@ -401,7 +400,7 @@ export const CreatureFactory: React.FC<CreatureFactoryProps> = ({
       }}
       onPointerOut={(e) => {
         e.stopPropagation();
-        if (hoveredObjectId === card.id) {
+        if (useGameStore.getState().hoveredObjectId === card.id) {
           setHoveredObjectId(null);
         }
       }}

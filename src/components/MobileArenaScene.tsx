@@ -100,10 +100,7 @@ const MobileArenaInterior: React.FC = () => {
       <directionalLight position={[0, 6, 2]} intensity={0.95} color="#38bdf8" />
       <directionalLight position={[0, 4, -3]} intensity={0.68} color="#f5b041" />
 
-      <mesh>
-        <sphereGeometry args={[18, 16, 12]} />
-        <meshBasicMaterial color="#060913" side={THREE.BackSide} />
-      </mesh>
+      <color attach="background" args={['#060913']} />
 
       <mesh
         position={[0, 0.02, 0]}

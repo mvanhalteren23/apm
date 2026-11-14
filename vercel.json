@@ -6,8 +6,8 @@
       "source": "/(.*)",
       "headers": [
         {
-          key: "Permissions-Policy",
-          value: "microphone=(self), camera=()"
+          "key": "Permissions-Policy",
+          "value": "microphone=(self), camera=()"
         }
       ]
     }

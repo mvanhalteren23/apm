@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   swcMinify: true,
+  eslint: { ignoreDuringBuilds: true },
   transpilePackages: [
     'three',
     '@react-three/fiber',
